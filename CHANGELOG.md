@@ -1,3 +1,6 @@
+## 1.1.0
+Adds `OptimalWrapRichText` for optimally wrapping `InlineSpan` content rendered with `Text.rich`.
+
 ## 1.0.5
 Fixes absent DefaultTextHeightBehavior in widget tree throwing an exception.
 

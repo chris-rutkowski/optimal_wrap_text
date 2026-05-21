@@ -1,6 +1,6 @@
 name: optimal_wrap_text
 description: "A Flutter Text replacement that wraps short multi-line text over similarly sized lines for better visual balance."
-version: 1.0.5
+version: 1.1.0
 homepage: https://commingle.app
 repository: https://github.com/chris-rutkowski/optimal_wrap_text
 

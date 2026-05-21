@@ -40,7 +40,7 @@ Add `optimal_wrap_text` to your `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  optimal_wrap_text: ^1.0.5
+  optimal_wrap_text: 1.1.0
   ...
 ```
 
@@ -55,6 +55,24 @@ Use it just like the `Text` widget:
 ```dart
 OptimalWrapText(
   'My slightly longer text that will span 2 or 3 lines',
+)
+```
+
+For rich text, use `OptimalWrapRichText` the same way you would use
+`Text.rich`:
+
+```dart
+OptimalWrapRichText(
+  TextSpan(
+    children: [
+      TextSpan(text: 'My slightly '),
+      TextSpan(
+        text: 'longer',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      TextSpan(text: ' rich text that will span 2 or 3 lines'),
+    ],
+  ),
 )
 ```
 

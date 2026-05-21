@@ -1,7 +1,9 @@
+// ignore_for_file: public_member_api_docs
+
 import 'package:flutter/material.dart';
-import 'package:optimal_wrap_text/src/utils/text_align_to_alignment.dart';
 
 import 'utils/find_optimal_text_painter_width.dart';
+import 'utils/text_align_to_alignment.dart';
 
 final class OptimalWrapTextForWidth extends StatelessWidget {
   final double width;
