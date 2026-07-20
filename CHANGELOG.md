@@ -1,3 +1,6 @@
+## 1.2.0
+Adds `WidgetSpan` support in `OptimalWrapRichText` (icons and other inline widgets).
+
 ## 1.1.0
 Adds `OptimalWrapRichText` for optimally wrapping `InlineSpan` content rendered with `Text.rich`.
 

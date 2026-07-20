@@ -30,6 +30,7 @@ Perfect for small, informative footnotes or short multi-line messages that deser
 
 - Drop-in replacement for the `Text` widget
 - Supports all `Text` attributes, including `style`, `textDirection` (RTL), `textHeightBehavior`…
+- Rich text via `OptimalWrapRichText`, including `WidgetSpan` (icons and other inline widgets)
 - Automatically finds optimal line breaks — no more manual `\n`
 - Adjusts to different screen sizes and text scaling
 
@@ -40,7 +41,7 @@ Add `optimal_wrap_text` to your `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  optimal_wrap_text: 1.1.0
+  optimal_wrap_text: 1.2.0
   ...
 ```
 
@@ -71,6 +72,22 @@ OptimalWrapRichText(
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       TextSpan(text: ' rich text that will span 2 or 3 lines'),
+    ],
+  ),
+)
+```
+
+`WidgetSpan`s (for example icons) are supported too:
+
+```dart
+OptimalWrapRichText(
+  TextSpan(
+    children: [
+      WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: Icon(Icons.info_outline, size: 16),
+      ),
+      TextSpan(text: ' My slightly longer text that will span 2 or 3 lines'),
     ],
   ),
 )
@@ -124,6 +141,8 @@ OptimalWrapText(
 `OptimalWrapText` does not support `maxLines` attribute. It’s by design as it is intended to display short messages that should always be fully displayed.
 
 It uses `LayoutBuilder` to get width in the given widget tree, which doesn’t work inside some slivers, such as `SliverFillRemaining`, which rely on intrinsic sizing.
+
+For `OptimalWrapRichText` with `WidgetSpan`s, prefer intrinsically sized inline children (icons, small badges, fixed-size boxes). Same as Flutter’s `Text.rich`, each inline widget is constrained by the paragraph’s max width — very wide or full-bleed children can prevent meaningful narrowing.
 
 💡 You can work around this by passing a manual width:
 

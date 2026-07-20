@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 
+import 'optimal_wrap_child.dart';
 import 'utils/find_optimal_text_painter_width.dart';
+import 'utils/inline_span_has_placeholders.dart';
 import 'utils/text_align_to_alignment.dart';
 
 final class OptimalWrapRichTextForWidth extends StatelessWidget {
@@ -43,6 +45,32 @@ final class OptimalWrapRichTextForWidth extends StatelessWidget {
     final effectiveTextAlign =
         textAlign ?? defaultStyle.textAlign ?? TextAlign.start;
     final effectiveTextDirection = textDirection ?? Directionality.of(context);
+
+    final richText = Text.rich(
+      text,
+      style: style,
+      strutStyle: strutStyle,
+      textAlign: textAlign,
+      textDirection: textDirection,
+      locale: locale,
+      softWrap: softWrap,
+      textScaler: textScaler,
+      semanticsLabel: semanticsLabel,
+      textWidthBasis: textWidthBasis,
+      textHeightBehavior: textHeightBehavior,
+      selectionColor: selectionColor,
+    );
+
+    if (inlineSpanHasPlaceholders(text)) {
+      return Align(
+        alignment: effectiveTextAlign.toAlignment(effectiveTextDirection),
+        child: OptimalWrapChild(
+          maxWidth: width,
+          child: richText,
+        ),
+      );
+    }
+
     final effectiveStyle = defaultStyle.style.merge(style);
     final effectiveText = TextSpan(style: effectiveStyle, children: [text]);
 
@@ -65,20 +93,7 @@ final class OptimalWrapRichTextForWidth extends StatelessWidget {
       alignment: effectiveTextAlign.toAlignment(effectiveTextDirection),
       child: SizedBox(
         width: optimalWidth,
-        child: Text.rich(
-          text,
-          style: style,
-          strutStyle: strutStyle,
-          textAlign: textAlign,
-          textDirection: textDirection,
-          locale: locale,
-          softWrap: softWrap,
-          textScaler: textScaler,
-          semanticsLabel: semanticsLabel,
-          textWidthBasis: textWidthBasis,
-          textHeightBehavior: textHeightBehavior,
-          selectionColor: selectionColor,
-        ),
+        child: richText,
       ),
     );
   }

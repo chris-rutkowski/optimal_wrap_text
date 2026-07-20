@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:optimal_wrap_text/optimal_wrap_text.dart';
+import 'package:optimal_wrap_text/src/optimal_wrap_child.dart';
 
 void main() {
   setUpAll(() async {
@@ -147,6 +148,114 @@ void main() {
     await expectLater(
       find.byType(RichWrapper),
       matchesGoldenFile('goldens/comparison_rich_text.png'),
+    );
+  });
+
+  testWidgets('Rich text with WidgetSpan', (tester) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    final richText = TextSpan(
+      children: [
+        const TextSpan(text: 'My slightly '),
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: SizedBox(
+            width: 12,
+            height: 12,
+            child: ColoredBox(color: Colors.red),
+          ),
+        ),
+        const TextSpan(text: ' longer rich text that will span 2 or 3 lines'),
+      ],
+    );
+
+    await tester.pumpWidget(
+      RichWrapper(
+        text: richText,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.center,
+      ),
+    );
+
+    final wrapChild = tester.renderObject<RenderOptimalWrapChild>(
+      find.byType(OptimalWrapChild),
+    );
+    expect(wrapChild.size.width, lessThan(surfaceSize.width));
+
+    final plainHeight = tester.getSize(find.byType(RichText).first).height;
+    final optimalHeight = tester
+        .getSize(
+          find.descendant(
+            of: find.byType(OptimalWrapRichText),
+            matching: find.byType(RichText),
+          ),
+        )
+        .height;
+    expect(optimalHeight, plainHeight);
+
+    await expectLater(
+      find.byType(RichWrapper),
+      matchesGoldenFile('goldens/comparison_rich_text_widget_span.png'),
+    );
+  });
+
+  testWidgets('Rich text with multiple WidgetSpans', (tester) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    final richText = TextSpan(
+      children: [
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: SizedBox(
+            width: 10,
+            height: 10,
+            child: ColoredBox(color: Colors.green),
+          ),
+        ),
+        const TextSpan(text: ' My slightly '),
+        const TextSpan(
+          text: 'longer',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const TextSpan(text: ' rich text '),
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: SizedBox(
+            width: 10,
+            height: 10,
+            child: ColoredBox(color: Colors.orange),
+          ),
+        ),
+        const TextSpan(text: ' that will span 2 or 3 lines'),
+      ],
+    );
+
+    await tester.pumpWidget(
+      RichWrapper(
+        text: richText,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.center,
+      ),
+    );
+
+    expect(find.byType(OptimalWrapChild), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ColoredBox &&
+            (widget.color == Colors.green || widget.color == Colors.orange),
+      ),
+      findsNWidgets(4),
+    );
+
+    final wrapChild = tester.renderObject<RenderOptimalWrapChild>(
+      find.byType(OptimalWrapChild),
+    );
+    expect(wrapChild.size.width, lessThan(surfaceSize.width));
+
+    await expectLater(
+      find.byType(RichWrapper),
+      matchesGoldenFile('goldens/comparison_rich_text_multiple_widget_spans.png'),
     );
   });
 }
