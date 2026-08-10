@@ -30,7 +30,13 @@ final class OptimalWrapRichText extends StatelessWidget {
   final bool? softWrap;
 
   /// See equivalent property in [Text.rich].
+  final TextOverflow overflow;
+
+  /// See equivalent property in [Text.rich].
   final TextScaler? textScaler;
+
+  /// See equivalent property in [Text.rich].
+  final int? maxLines;
 
   /// See equivalent property in [Text.rich].
   final String? semanticsLabel;
@@ -55,7 +61,9 @@ final class OptimalWrapRichText extends StatelessWidget {
     this.textDirection,
     this.locale,
     this.softWrap,
+    this.overflow = TextOverflow.clip,
     this.textScaler,
+    this.maxLines,
     this.semanticsLabel,
     this.textWidthBasis,
     this.textHeightBehavior,
@@ -74,7 +82,9 @@ final class OptimalWrapRichText extends StatelessWidget {
         textDirection: textDirection,
         locale: locale,
         softWrap: softWrap,
+        overflow: overflow,
         textScaler: textScaler,
+        maxLines: maxLines,
         semanticsLabel: semanticsLabel,
         textWidthBasis: textWidthBasis,
         textHeightBehavior: textHeightBehavior,
@@ -93,7 +103,9 @@ final class OptimalWrapRichText extends StatelessWidget {
           textDirection: textDirection,
           locale: locale,
           softWrap: softWrap,
+          overflow: overflow,
           textScaler: textScaler,
+          maxLines: maxLines,
           semanticsLabel: semanticsLabel,
           textWidthBasis: textWidthBasis,
           textHeightBehavior: textHeightBehavior,

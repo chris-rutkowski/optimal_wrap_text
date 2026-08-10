@@ -1,3 +1,6 @@
+## 1.3.0
+Adds `maxLines` and `overflow` support, matching Flutter’s `Text` / `Text.rich`.
+
 ## 1.2.0
 Adds `WidgetSpan` support in `OptimalWrapRichText` (icons and other inline widgets).
 

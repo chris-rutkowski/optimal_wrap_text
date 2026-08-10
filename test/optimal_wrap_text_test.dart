@@ -258,6 +258,304 @@ void main() {
       matchesGoldenFile('goldens/comparison_rich_text_multiple_widget_spans.png'),
     );
   });
+
+  testWidgets('maxLines fits and still narrows', (tester) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    const longText =
+        'My slightly longer text that will span 2 or 3 lines when wrapped';
+
+    await tester.pumpWidget(
+      Wrapper(
+        text: longText,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.left,
+        maxLines: 3,
+      ),
+    );
+
+    final text = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(OptimalWrapText),
+        matching: find.byType(Text),
+      ),
+    );
+    expect(text.maxLines, 3);
+
+    final sizedBox = tester
+        .widgetList<SizedBox>(
+          find.descendant(
+            of: find.byType(OptimalWrapText),
+            matching: find.byType(SizedBox),
+          ),
+        )
+        .singleWhere((box) => box.width != null);
+    expect(sizedBox.width, lessThan(surfaceSize.width - 32));
+
+    await expectLater(
+      find.byType(Wrapper),
+      matchesGoldenFile('goldens/comparison_max_lines_fit.png'),
+    );
+  });
+
+  testWidgets('maxLines 2 truncates text that needs 3 lines', (tester) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    final availableWidth = surfaceSize.width - 32;
+    final unconstrained = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.blue),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: availableWidth);
+    expect(unconstrained.computeLineMetrics().length, 3);
+    final unconstrainedHeight = unconstrained.height;
+    unconstrained.dispose();
+
+    await tester.pumpWidget(
+      Wrapper(
+        text: text,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.left,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+
+    final innerText = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(OptimalWrapText),
+        matching: find.byType(Text),
+      ),
+    );
+    expect(innerText.maxLines, 2);
+    expect(innerText.overflow, TextOverflow.ellipsis);
+
+    final sizedBox = tester
+        .widgetList<SizedBox>(
+          find.descendant(
+            of: find.byType(OptimalWrapText),
+            matching: find.byType(SizedBox),
+          ),
+        )
+        .singleWhere((box) => box.width != null);
+    expect(sizedBox.width, availableWidth);
+
+    final optimalHeight = tester
+        .getSize(
+          find.descendant(
+            of: find.byType(OptimalWrapText),
+            matching: find.byType(RichText),
+          ),
+        )
+        .height;
+    expect(optimalHeight, lessThan(unconstrainedHeight));
+
+    await expectLater(
+      find.byType(Wrapper),
+      matchesGoldenFile('goldens/comparison_max_lines_2_of_3.png'),
+    );
+  });
+
+  testWidgets('maxLines that exceed at full width keep available width', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    const longText =
+        'This is a deliberately long sentence that cannot fit on a single '
+        'line at the available width no matter how it is wrapped optimally';
+
+    await tester.pumpWidget(
+      Wrapper(
+        text: longText,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.left,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+
+    final text = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(OptimalWrapText),
+        matching: find.byType(Text),
+      ),
+    );
+    expect(text.maxLines, 1);
+    expect(text.overflow, TextOverflow.ellipsis);
+
+    final sizedBox = tester
+        .widgetList<SizedBox>(
+          find.descendant(
+            of: find.byType(OptimalWrapText),
+            matching: find.byType(SizedBox),
+          ),
+        )
+        .singleWhere((box) => box.width != null);
+    expect(sizedBox.width, surfaceSize.width - 32);
+
+    await expectLater(
+      find.byType(Wrapper),
+      matchesGoldenFile('goldens/comparison_max_lines_ellipsis.png'),
+    );
+  });
+
+  testWidgets('overflow ellipsis is forwarded', (tester) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: DefaultTextHeightBehavior(
+          textHeightBehavior: TextHeightBehavior(),
+          child: DefaultTextStyle(
+            style: TextStyle(fontFamily: 'Roboto', fontSize: 16),
+            child: Center(
+              child: SizedBox(
+                width: surfaceSize.width,
+                child: OptimalWrapText(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final innerText = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(OptimalWrapText),
+        matching: find.byType(Text),
+      ),
+    );
+    expect(innerText.maxLines, 1);
+    expect(innerText.overflow, TextOverflow.ellipsis);
+  });
+
+  testWidgets('rich maxLines 2 truncates text that needs 3 lines', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    const richText = TextSpan(
+      children: [
+        TextSpan(text: 'My slightly '),
+        TextSpan(text: 'longer', style: TextStyle(fontWeight: FontWeight.bold)),
+        TextSpan(text: ' text that will span 2 or 3 lines'),
+      ],
+    );
+
+    final availableWidth = surfaceSize.width - 32;
+    final unconstrained = TextPainter(
+      text: TextSpan(
+        style: TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.blue),
+        children: [richText],
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: availableWidth);
+    expect(unconstrained.computeLineMetrics().length, 3);
+    final unconstrainedHeight = unconstrained.height;
+    unconstrained.dispose();
+
+    await tester.pumpWidget(
+      RichWrapper(
+        text: richText,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.left,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+
+    final richTextWidget = tester
+        .widgetList<RichText>(
+          find.descendant(
+            of: find.byType(OptimalWrapRichText),
+            matching: find.byType(RichText),
+          ),
+        )
+        .first;
+    expect(richTextWidget.maxLines, 2);
+    expect(richTextWidget.overflow, TextOverflow.ellipsis);
+
+    final sizedBox = tester
+        .widgetList<SizedBox>(
+          find.descendant(
+            of: find.byType(OptimalWrapRichText),
+            matching: find.byType(SizedBox),
+          ),
+        )
+        .singleWhere((box) => box.width != null);
+    expect(sizedBox.width, availableWidth);
+
+    final optimalHeight = tester
+        .getSize(
+          find.descendant(
+            of: find.byType(OptimalWrapRichText),
+            matching: find.byType(RichText),
+          ),
+        )
+        .height;
+    expect(optimalHeight, lessThan(unconstrainedHeight));
+
+    await expectLater(
+      find.byType(RichWrapper),
+      matchesGoldenFile('goldens/comparison_rich_max_lines_2_of_3.png'),
+    );
+  });
+
+  testWidgets('rich maxLines that exceed at full width keep available width', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    const richText = TextSpan(
+      text:
+          'This is a deliberately long sentence that cannot fit on a single '
+          'line at the available width no matter how it is wrapped optimally',
+    );
+
+    await tester.pumpWidget(
+      RichWrapper(
+        text: richText,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.left,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+
+    final richTextWidget = tester
+        .widgetList<RichText>(
+          find.descendant(
+            of: find.byType(OptimalWrapRichText),
+            matching: find.byType(RichText),
+          ),
+        )
+        .first;
+    expect(richTextWidget.maxLines, 1);
+    expect(richTextWidget.overflow, TextOverflow.ellipsis);
+
+    final sizedBox = tester
+        .widgetList<SizedBox>(
+          find.descendant(
+            of: find.byType(OptimalWrapRichText),
+            matching: find.byType(SizedBox),
+          ),
+        )
+        .singleWhere((box) => box.width != null);
+    expect(sizedBox.width, surfaceSize.width - 32);
+
+    await expectLater(
+      find.byType(RichWrapper),
+      matchesGoldenFile('goldens/comparison_rich_max_lines_ellipsis.png'),
+    );
+  });
 }
 
 final class Wrapper extends StatelessWidget {
@@ -265,6 +563,8 @@ final class Wrapper extends StatelessWidget {
   final TextStyle style;
   final TextAlign textAlign;
   final TextDirection textDirection;
+  final int? maxLines;
+  final TextOverflow overflow;
 
   const Wrapper({
     super.key,
@@ -272,6 +572,8 @@ final class Wrapper extends StatelessWidget {
     required this.style,
     required this.textAlign,
     this.textDirection = TextDirection.ltr,
+    this.maxLines,
+    this.overflow = TextOverflow.clip,
   });
 
   @override
@@ -290,9 +592,21 @@ final class Wrapper extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(text, style: style, textAlign: textAlign),
+                  Text(
+                    text,
+                    style: style,
+                    textAlign: textAlign,
+                    maxLines: maxLines,
+                    overflow: overflow,
+                  ),
                   SizedBox(height: 16),
-                  OptimalWrapText(text, style: style, textAlign: textAlign),
+                  OptimalWrapText(
+                    text,
+                    style: style,
+                    textAlign: textAlign,
+                    maxLines: maxLines,
+                    overflow: overflow,
+                  ),
                 ],
               ),
             ),
@@ -307,12 +621,16 @@ final class RichWrapper extends StatelessWidget {
   final InlineSpan text;
   final TextStyle style;
   final TextAlign textAlign;
+  final int? maxLines;
+  final TextOverflow overflow;
 
   const RichWrapper({
     super.key,
     required this.text,
     required this.style,
     required this.textAlign,
+    this.maxLines,
+    this.overflow = TextOverflow.clip,
   });
 
   @override
@@ -331,9 +649,21 @@ final class RichWrapper extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text.rich(text, style: style, textAlign: textAlign),
+                  Text.rich(
+                    text,
+                    style: style,
+                    textAlign: textAlign,
+                    maxLines: maxLines,
+                    overflow: overflow,
+                  ),
                   SizedBox(height: 16),
-                  OptimalWrapRichText(text, style: style, textAlign: textAlign),
+                  OptimalWrapRichText(
+                    text,
+                    style: style,
+                    textAlign: textAlign,
+                    maxLines: maxLines,
+                    overflow: overflow,
+                  ),
                 ],
               ),
             ),

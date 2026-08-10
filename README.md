@@ -105,7 +105,9 @@ OptimalWrapText(
   textDirection: ...,
   locale: ...,
   softWrap: ...,
+  overflow: ...,
   textScaler: ...,
+  maxLines: ...,
   semanticsLabel: ...,
   textWidthBasis: ...,
   textHeightBehavior: ...,
@@ -137,8 +139,6 @@ OptimalWrapText(
 3.	It wraps the final Text in a SizedBox constrained to that optimal width.
 
 ## ⚠️ Known Limitations
-
-`OptimalWrapText` does not support `maxLines` attribute. It’s by design as it is intended to display short messages that should always be fully displayed.
 
 It uses `LayoutBuilder` to get width in the given widget tree, which doesn’t work inside some slivers, such as `SliverFillRemaining`, which rely on intrinsic sizing.
 

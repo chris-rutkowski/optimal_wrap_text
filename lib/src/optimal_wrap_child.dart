@@ -44,6 +44,23 @@ final class RenderOptimalWrapChild extends RenderProxyBox {
     markNeedsLayout();
   }
 
+  bool _didExceedMaxLines(RenderBox child) {
+    RenderParagraph? paragraph;
+    void visitor(RenderObject object) {
+      if (paragraph != null) {
+        return;
+      }
+      if (object is RenderParagraph) {
+        paragraph = object;
+        return;
+      }
+      object.visitChildren(visitor);
+    }
+
+    visitor(child);
+    return paragraph?.didExceedMaxLines ?? false;
+  }
+
   @override
   void performLayout() {
     final child = this.child;
@@ -62,18 +79,29 @@ final class RenderOptimalWrapChild extends RenderProxyBox {
       parentUsesSize: true,
     );
 
+    // When maxLines truncates at full width, narrowing cannot avoid overflow.
+    if (_didExceedMaxLines(child)) {
+      child.layout(
+        BoxConstraints.tightFor(width: availableWidth),
+        parentUsesSize: true,
+      );
+      size = constraints.constrain(Size(availableWidth, child.size.height));
+      return;
+    }
+
     final fullHeight = child.size.height;
     var left = 0.0;
     var right = child.size.width;
     var best = child.size.width;
 
-    // Binary search for the narrowest max width that keeps the same height.
+    // Binary search for the narrowest max width that keeps the same height
+    // without exceeding maxLines.
     while ((right - left) > 1) {
       final mid = (left + right) / 2;
 
       child.layout(BoxConstraints(maxWidth: mid), parentUsesSize: true);
 
-      if (child.size.height <= fullHeight) {
+      if (child.size.height <= fullHeight && !_didExceedMaxLines(child)) {
         best = mid;
         right = mid;
       } else {
