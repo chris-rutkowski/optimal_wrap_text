@@ -7,6 +7,7 @@ import 'utils/text_align_to_alignment.dart';
 
 final class OptimalWrapTextForWidth extends StatelessWidget {
   final double width;
+  final bool shrinkWrap;
   final String text;
   final TextStyle? style;
   final StrutStyle? strutStyle;
@@ -26,6 +27,7 @@ final class OptimalWrapTextForWidth extends StatelessWidget {
     this.text, {
     super.key,
     required this.width,
+    this.shrinkWrap = false,
     this.style,
     this.strutStyle,
     this.textAlign,
@@ -65,27 +67,33 @@ final class OptimalWrapTextForWidth extends StatelessWidget {
     final optimalWidth = findOptimalTextPainterWidth(painter);
     painter.dispose();
 
+    final child = SizedBox(
+      width: optimalWidth,
+      child: Text(
+        text,
+        style: style,
+        strutStyle: strutStyle,
+        textAlign: textAlign,
+        textDirection: textDirection,
+        locale: locale,
+        softWrap: softWrap,
+        overflow: overflow,
+        textScaler: textScaler,
+        maxLines: maxLines,
+        semanticsLabel: semanticsLabel,
+        textWidthBasis: textWidthBasis,
+        textHeightBehavior: textHeightBehavior,
+        selectionColor: selectionColor,
+      ),
+    );
+
+    if (shrinkWrap) {
+      return child;
+    }
+
     return Align(
       alignment: effectiveTextAlign.toAlignment(effectiveTextDirection),
-      child: SizedBox(
-        width: optimalWidth,
-        child: Text(
-          text,
-          style: style,
-          strutStyle: strutStyle,
-          textAlign: textAlign,
-          textDirection: textDirection,
-          locale: locale,
-          softWrap: softWrap,
-          overflow: overflow,
-          textScaler: textScaler,
-          maxLines: maxLines,
-          semanticsLabel: semanticsLabel,
-          textWidthBasis: textWidthBasis,
-          textHeightBehavior: textHeightBehavior,
-          selectionColor: selectionColor,
-        ),
-      ),
+      child: child,
     );
   }
 }

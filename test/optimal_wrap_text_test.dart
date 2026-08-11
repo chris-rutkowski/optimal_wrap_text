@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:optimal_wrap_text/optimal_wrap_text.dart';
-import 'package:optimal_wrap_text/src/optimal_wrap_child.dart';
 
 void main() {
   setUpAll(() async {
@@ -555,6 +554,245 @@ void main() {
       find.byType(RichWrapper),
       matchesGoldenFile('goldens/comparison_rich_max_lines_ellipsis.png'),
     );
+  });
+
+  testWidgets('OptimalWrapText shrinkWrap sizes to optimal width', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: DefaultTextStyle(
+          style: const TextStyle(fontFamily: 'Roboto', fontSize: 16),
+          child: Center(
+            child: OptimalWrapText(
+              text,
+              width: surfaceSize.width,
+              shrinkWrap: true,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final shrinkSize = tester.getSize(find.byType(OptimalWrapText));
+    expect(shrinkSize.width, lessThan(surfaceSize.width));
+    expect(
+      find.descendant(
+        of: find.byType(OptimalWrapText),
+        matching: find.byType(Align),
+      ),
+      findsNothing,
+    );
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: DefaultTextStyle(
+          style: const TextStyle(fontFamily: 'Roboto', fontSize: 16),
+          child: Center(
+            child: OptimalWrapText(
+              text,
+              width: surfaceSize.width,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final expandedSize = tester.getSize(find.byType(OptimalWrapText));
+    expect(expandedSize.width, surfaceSize.width);
+    expect(
+      find.descendant(
+        of: find.byType(OptimalWrapText),
+        matching: find.byType(Align),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('OptimalWrapRichText shrinkWrap sizes to optimal width', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+
+    const richText = TextSpan(
+      children: [
+        TextSpan(text: 'My slightly '),
+        TextSpan(
+          text: 'longer',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        TextSpan(text: ' rich text that will span 2 or 3 lines'),
+      ],
+    );
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: DefaultTextStyle(
+          style: const TextStyle(fontFamily: 'Roboto', fontSize: 16),
+          child: Center(
+            child: OptimalWrapRichText(
+              richText,
+              width: surfaceSize.width,
+              shrinkWrap: true,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSize(find.byType(OptimalWrapRichText)).width,
+      lessThan(surfaceSize.width),
+    );
+    expect(
+      find.descendant(
+        of: find.byType(OptimalWrapRichText),
+        matching: find.byType(Align),
+      ),
+      findsNothing,
+    );
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: DefaultTextStyle(
+          style: const TextStyle(fontFamily: 'Roboto', fontSize: 16),
+          child: Center(
+            child: OptimalWrapRichText(
+              richText,
+              width: surfaceSize.width,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSize(find.byType(OptimalWrapRichText)).width,
+      surfaceSize.width,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(OptimalWrapRichText),
+        matching: find.byType(Align),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+    'OptimalWrapRichText shrinkWrap with WidgetSpan sizes to optimal width',
+    (tester) async {
+      await tester.binding.setSurfaceSize(surfaceSize);
+
+      final richText = TextSpan(
+        children: [
+          const TextSpan(text: 'My slightly '),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: SizedBox(
+              width: 12,
+              height: 12,
+              child: ColoredBox(color: Colors.red),
+            ),
+          ),
+          const TextSpan(
+            text: ' longer rich text that will span 2 or 3 lines',
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: DefaultTextStyle(
+            style: const TextStyle(fontFamily: 'Roboto', fontSize: 16),
+            child: Center(
+              child: OptimalWrapRichText(
+                richText,
+                width: surfaceSize.width,
+                shrinkWrap: true,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(OptimalWrapChild), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(OptimalWrapRichText),
+          matching: find.byType(Align),
+        ),
+        findsNothing,
+      );
+      expect(
+        tester.getSize(find.byType(OptimalWrapRichText)).width,
+        lessThan(surfaceSize.width),
+      );
+    },
+  );
+
+  testWidgets(
+    'OptimalWrapText shrinkWrap via LayoutBuilder under loose constraints',
+    (tester) async {
+      await tester.binding.setSurfaceSize(surfaceSize);
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: DefaultTextStyle(
+            style: const TextStyle(fontFamily: 'Roboto', fontSize: 16),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: surfaceSize.width),
+                child: OptimalWrapText(
+                  text,
+                  shrinkWrap: true,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        tester.getSize(find.byType(OptimalWrapText)).width,
+        lessThan(surfaceSize.width),
+      );
+    },
+  );
+
+  test('findOptimalTextPainterWidth narrows without changing height', () {
+    final painter = TextPainter(
+      text: const TextSpan(
+        text: text,
+        style: TextStyle(fontFamily: 'Roboto', fontSize: 16),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: surfaceSize.width);
+
+    final fullHeight = painter.height;
+    final fullWidth = painter.width;
+    final optimalWidth = findOptimalTextPainterWidth(painter);
+
+    expect(optimalWidth, lessThan(fullWidth));
+
+    painter.layout(maxWidth: optimalWidth);
+    expect(painter.height, fullHeight);
+    painter.dispose();
   });
 }
 

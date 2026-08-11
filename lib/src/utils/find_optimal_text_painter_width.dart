@@ -1,5 +1,11 @@
 import 'package:flutter/painting.dart';
 
+/// Finds the narrowest width at which [painter] keeps the same laid-out height
+/// (and does not exceed [TextPainter.maxLines]) as at its current layout.
+///
+/// [painter] must already be laid out at the available max width before calling.
+/// This mutates [painter] via additional [TextPainter.layout] calls; callers own
+/// disposal.
 double findOptimalTextPainterWidth(TextPainter painter) {
   // When maxLines truncates at full width, narrowing cannot avoid overflow.
   if (painter.didExceedMaxLines) {

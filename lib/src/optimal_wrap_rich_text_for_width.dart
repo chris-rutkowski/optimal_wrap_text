@@ -9,6 +9,7 @@ import 'utils/text_align_to_alignment.dart';
 
 final class OptimalWrapRichTextForWidth extends StatelessWidget {
   final double width;
+  final bool shrinkWrap;
   final InlineSpan text;
   final TextStyle? style;
   final StrutStyle? strutStyle;
@@ -28,6 +29,7 @@ final class OptimalWrapRichTextForWidth extends StatelessWidget {
     this.text, {
     super.key,
     required this.width,
+    this.shrinkWrap = false,
     this.style,
     this.strutStyle,
     this.textAlign,
@@ -67,42 +69,46 @@ final class OptimalWrapRichTextForWidth extends StatelessWidget {
       selectionColor: selectionColor,
     );
 
+    late final Widget child;
     if (inlineSpanHasPlaceholders(text)) {
-      return Align(
-        alignment: effectiveTextAlign.toAlignment(effectiveTextDirection),
-        child: OptimalWrapChild(
-          maxWidth: width,
-          child: richText,
-        ),
+      child = OptimalWrapChild(
+        maxWidth: width,
+        child: richText,
+      );
+    } else {
+      final effectiveStyle = defaultStyle.style.merge(style);
+      final effectiveText = TextSpan(style: effectiveStyle, children: [text]);
+
+      final painter = TextPainter(
+        text: effectiveText,
+        textDirection: effectiveTextDirection,
+        textAlign: effectiveTextAlign,
+        maxLines: maxLines,
+        ellipsis: overflow == TextOverflow.ellipsis ? '\u2026' : null,
+        strutStyle: strutStyle,
+        textScaler: textScaler ?? MediaQuery.textScalerOf(context),
+        locale: locale,
+        textWidthBasis: textWidthBasis ?? TextWidthBasis.parent,
+        textHeightBehavior:
+            textHeightBehavior ?? DefaultTextHeightBehavior.maybeOf(context),
+      )..layout(maxWidth: width);
+
+      final optimalWidth = findOptimalTextPainterWidth(painter);
+      painter.dispose();
+
+      child = SizedBox(
+        width: optimalWidth,
+        child: richText,
       );
     }
 
-    final effectiveStyle = defaultStyle.style.merge(style);
-    final effectiveText = TextSpan(style: effectiveStyle, children: [text]);
-
-    final painter = TextPainter(
-      text: effectiveText,
-      textDirection: effectiveTextDirection,
-      textAlign: effectiveTextAlign,
-      maxLines: maxLines,
-      ellipsis: overflow == TextOverflow.ellipsis ? '\u2026' : null,
-      strutStyle: strutStyle,
-      textScaler: textScaler ?? MediaQuery.textScalerOf(context),
-      locale: locale,
-      textWidthBasis: textWidthBasis ?? TextWidthBasis.parent,
-      textHeightBehavior:
-          textHeightBehavior ?? DefaultTextHeightBehavior.maybeOf(context),
-    )..layout(maxWidth: width);
-
-    final optimalWidth = findOptimalTextPainterWidth(painter);
-    painter.dispose();
+    if (shrinkWrap) {
+      return child;
+    }
 
     return Align(
       alignment: effectiveTextAlign.toAlignment(effectiveTextDirection),
-      child: SizedBox(
-        width: optimalWidth,
-        child: richText,
-      ),
+      child: child,
     );
   }
 }

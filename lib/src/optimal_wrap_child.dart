@@ -1,5 +1,3 @@
-// ignore_for_file: public_member_api_docs
-
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
@@ -7,10 +5,16 @@ import 'package:flutter/widgets.dart';
 /// [maxWidth], using a binary search over real child layouts.
 ///
 /// Used when the child is [Text.rich] containing [WidgetSpan]s, which cannot
-/// be measured with a bare [TextPainter].
+/// be measured with a bare [TextPainter]. Also useful as a primitive when
+/// wrapping custom rich-text widgets that should shrink to an optimal width.
+///
+/// Prefer `shrinkWrap: true` on `OptimalWrapText` / `OptimalWrapRichText` when
+/// using those widgets directly.
 final class OptimalWrapChild extends SingleChildRenderObjectWidget {
+  /// Maximum width available for wrapping (typically from a [LayoutBuilder]).
   final double maxWidth;
 
+  /// Creates a widget that shrinks [child] to an optimally wrapped width.
   const OptimalWrapChild({
     super.key,
     required this.maxWidth,
@@ -31,9 +35,12 @@ final class OptimalWrapChild extends SingleChildRenderObjectWidget {
   }
 }
 
+/// Render object for [OptimalWrapChild].
 final class RenderOptimalWrapChild extends RenderProxyBox {
+  /// Creates a render object that binary-searches for an optimal child width.
   RenderOptimalWrapChild({required double maxWidth}) : _maxWidth = maxWidth;
 
+  /// Maximum width available for wrapping.
   double get maxWidth => _maxWidth;
   double _maxWidth;
   set maxWidth(double value) {

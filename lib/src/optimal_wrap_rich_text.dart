@@ -8,6 +8,11 @@ final class OptimalWrapRichText extends StatelessWidget {
   /// Such as inside SliverFillRemaining.
   final double? width;
 
+  /// When true, sizes to the optimally wrapped width instead of expanding to
+  /// fill the parent via [Align]. Parent must position the result (e.g.
+  /// [Center], [Align], or [Row]).
+  final bool shrinkWrap;
+
   /// See equivalent property in [Text.rich].
   final InlineSpan text;
 
@@ -55,6 +60,7 @@ final class OptimalWrapRichText extends StatelessWidget {
     this.text, {
     super.key,
     this.width,
+    this.shrinkWrap = false,
     this.style,
     this.strutStyle,
     this.textAlign,
@@ -76,6 +82,7 @@ final class OptimalWrapRichText extends StatelessWidget {
       return OptimalWrapRichTextForWidth(
         text,
         width: width!,
+        shrinkWrap: shrinkWrap,
         style: style,
         strutStyle: strutStyle,
         textAlign: textAlign,
@@ -97,6 +104,7 @@ final class OptimalWrapRichText extends StatelessWidget {
         return OptimalWrapRichTextForWidth(
           text,
           width: constraints.maxWidth,
+          shrinkWrap: shrinkWrap,
           style: style,
           strutStyle: strutStyle,
           textAlign: textAlign,

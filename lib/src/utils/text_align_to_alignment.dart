@@ -1,6 +1,8 @@
 import 'package:flutter/rendering.dart';
 
+/// Maps [TextAlign] values to an [Alignment] for positioning wrapped text.
 extension TextAlignToAlignment on TextAlign {
+  /// Returns the horizontal [Alignment] for this [TextAlign] in [direction].
   Alignment toAlignment(TextDirection direction) {
     switch (this) {
       case TextAlign.left:

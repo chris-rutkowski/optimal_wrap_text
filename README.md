@@ -41,7 +41,7 @@ Add `optimal_wrap_text` to your `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  optimal_wrap_text: 1.2.0
+  optimal_wrap_text: 1.4.0
   ...
 ```
 
@@ -116,6 +116,21 @@ OptimalWrapText(
 ```
 
 📌 For centered or right-aligned text, you may still want to wrap it in a `Center`, `Align`, or `Row`, just like with a regular `Text` widget.
+
+Use `shrinkWrap: true` when the parent should hug the optimally wrapped width
+(for example a chip or speech bubble). By default the widgets expand to the
+available width via `Align`, matching typical full-width text layout.
+
+```dart
+OptimalWrapRichText(
+  textSpan,
+  shrinkWrap: true,
+  textAlign: TextAlign.center,
+)
+```
+
+For custom rich-text children, wrap them with the exported `OptimalWrapChild`
+primitive instead.
 
 
 ## 🧠 How does it work?

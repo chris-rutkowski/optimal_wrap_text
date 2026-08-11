@@ -5,8 +5,13 @@ import 'optimal_wrap_text_for_width.dart';
 /// A widget that wraps text optimally.
 final class OptimalWrapText extends StatelessWidget {
   /// Provide the width for edge cases where LayoutBuilder cannot be used.
-  /// Such as inside SliverFillRemaining
+  /// Such as inside SliverFillRemaining.
   final double? width;
+
+  /// When true, sizes to the optimally wrapped width instead of expanding to
+  /// fill the parent via [Align]. Parent must position the result (e.g.
+  /// [Center], [Align], or [Row]).
+  final bool shrinkWrap;
 
   /// See equivalent property in [Text]
   final String text;
@@ -55,6 +60,7 @@ final class OptimalWrapText extends StatelessWidget {
     this.text, {
     super.key,
     this.width,
+    this.shrinkWrap = false,
     this.style,
     this.strutStyle,
     this.textAlign,
@@ -76,6 +82,7 @@ final class OptimalWrapText extends StatelessWidget {
       return OptimalWrapTextForWidth(
         text,
         width: width!,
+        shrinkWrap: shrinkWrap,
         style: style,
         strutStyle: strutStyle,
         textAlign: textAlign,
@@ -97,6 +104,7 @@ final class OptimalWrapText extends StatelessWidget {
         return OptimalWrapTextForWidth(
           text,
           width: constraints.maxWidth,
+          shrinkWrap: shrinkWrap,
           style: style,
           strutStyle: strutStyle,
           textAlign: textAlign,

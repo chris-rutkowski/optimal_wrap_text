@@ -1,3 +1,8 @@
+## 1.4.0
+Adds `shrinkWrap` on `OptimalWrapText` / `OptimalWrapRichText` to size to the
+optimally wrapped width instead of expanding via `Align`.
+Exports `OptimalWrapChild` and `findOptimalTextPainterWidth` for advanced use.
+
 ## 1.3.0
 Adds `maxLines` and `overflow` support, matching Flutter’s `Text` / `Text.rich`.
 
