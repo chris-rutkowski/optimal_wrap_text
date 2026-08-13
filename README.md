@@ -32,6 +32,7 @@ Perfect for small, informative footnotes or short multi-line messages that deser
 - Supports all `Text` attributes, including `style`, `textDirection` (RTL), `textHeightBehavior`…
 - Rich text via `OptimalWrapRichText`, including `WidgetSpan` (icons and other inline widgets)
 - Automatically finds optimal line breaks — no more manual `\n`
+- Optional `minLines` to wrap onto at least that many lines when there are enough words
 - Adjusts to different screen sizes and text scaling
 
 ## 🚀 Getting started
@@ -41,7 +42,7 @@ Add `optimal_wrap_text` to your `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  optimal_wrap_text: 1.4.0
+  optimal_wrap_text: 1.5.0
   ...
 ```
 
@@ -107,6 +108,7 @@ OptimalWrapText(
   softWrap: ...,
   overflow: ...,
   textScaler: ...,
+  minLines: ...,
   maxLines: ...,
   semanticsLabel: ...,
   textWidthBasis: ...,
@@ -116,6 +118,17 @@ OptimalWrapText(
 ```
 
 📌 For centered or right-aligned text, you may still want to wrap it in a `Center`, `Align`, or `Row`, just like with a regular `Text` widget.
+
+Use `minLines` to wrap onto at least that many lines when the text has enough
+words. A single unbreakable word is never forced to break.
+
+```dart
+OptimalWrapText(
+  'Hello there friend',
+  minLines: 2,
+  textAlign: TextAlign.center,
+)
+```
 
 Use `shrinkWrap: true` when the parent should hug the optimally wrapped width
 (for example a chip or speech bubble). By default the widgets expand to the
@@ -137,7 +150,7 @@ primitive instead.
 
 1. **Optimal Wrap Text** uses `TextPainter` to determine how many lines your text will take at full available width in the given widget tree.
 
-2. It runs a binary search to find the narrowest width that still fits in the same number of lines — ensuring optimal wrapping.
+2. It runs a binary search to find the narrowest width that still fits in the same number of lines — ensuring optimal wrapping. With `minLines`, that target is raised so the text wraps onto at least that many lines when there are enough words.
 
    e.g. 
    ```text

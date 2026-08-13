@@ -40,6 +40,10 @@ final class OptimalWrapText extends StatelessWidget {
   /// See equivalent property in [Text]
   final TextScaler? textScaler;
 
+  /// When set, wraps onto at least this many lines if the text has enough
+  /// break opportunities. A single unbreakable word is never forced to break.
+  final int? minLines;
+
   /// See equivalent property in [Text]
   final int? maxLines;
 
@@ -69,12 +73,14 @@ final class OptimalWrapText extends StatelessWidget {
     this.softWrap,
     this.overflow = TextOverflow.clip,
     this.textScaler,
+    this.minLines,
     this.maxLines,
     this.semanticsLabel,
     this.textWidthBasis,
     this.textHeightBehavior,
     this.selectionColor,
-  });
+  }) : assert(minLines == null || minLines > 0),
+       assert(maxLines == null || minLines == null || minLines <= maxLines);
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +97,7 @@ final class OptimalWrapText extends StatelessWidget {
         softWrap: softWrap,
         overflow: overflow,
         textScaler: textScaler,
+        minLines: minLines,
         maxLines: maxLines,
         semanticsLabel: semanticsLabel,
         textWidthBasis: textWidthBasis,
@@ -113,6 +120,7 @@ final class OptimalWrapText extends StatelessWidget {
           softWrap: softWrap,
           overflow: overflow,
           textScaler: textScaler,
+          minLines: minLines,
           maxLines: maxLines,
           semanticsLabel: semanticsLabel,
           textWidthBasis: textWidthBasis,

@@ -182,14 +182,15 @@ void main() {
     expect(wrapChild.size.width, lessThan(surfaceSize.width));
 
     final plainHeight = tester.getSize(find.byType(RichText).first).height;
-    final optimalHeight = tester
-        .getSize(
-          find.descendant(
-            of: find.byType(OptimalWrapRichText),
-            matching: find.byType(RichText),
-          ),
-        )
-        .height;
+    final optimalHeight =
+        tester
+            .getSize(
+              find.descendant(
+                of: find.byType(OptimalWrapRichText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .height;
     expect(optimalHeight, plainHeight);
 
     await expectLater(
@@ -254,7 +255,9 @@ void main() {
 
     await expectLater(
       find.byType(RichWrapper),
-      matchesGoldenFile('goldens/comparison_rich_text_multiple_widget_spans.png'),
+      matchesGoldenFile(
+        'goldens/comparison_rich_text_multiple_widget_spans.png',
+      ),
     );
   });
 
@@ -304,7 +307,11 @@ void main() {
     final unconstrained = TextPainter(
       text: TextSpan(
         text: text,
-        style: TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.blue),
+        style: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 16,
+          color: Colors.blue,
+        ),
       ),
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: availableWidth);
@@ -341,14 +348,15 @@ void main() {
         .singleWhere((box) => box.width != null);
     expect(sizedBox.width, availableWidth);
 
-    final optimalHeight = tester
-        .getSize(
-          find.descendant(
-            of: find.byType(OptimalWrapText),
-            matching: find.byType(RichText),
-          ),
-        )
-        .height;
+    final optimalHeight =
+        tester
+            .getSize(
+              find.descendant(
+                of: find.byType(OptimalWrapText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .height;
     expect(optimalHeight, lessThan(unconstrainedHeight));
 
     await expectLater(
@@ -452,7 +460,11 @@ void main() {
     final availableWidth = surfaceSize.width - 32;
     final unconstrained = TextPainter(
       text: TextSpan(
-        style: TextStyle(fontFamily: 'Roboto', fontSize: 16, color: Colors.blue),
+        style: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 16,
+          color: Colors.blue,
+        ),
         children: [richText],
       ),
       textDirection: TextDirection.ltr,
@@ -471,14 +483,15 @@ void main() {
       ),
     );
 
-    final richTextWidget = tester
-        .widgetList<RichText>(
-          find.descendant(
-            of: find.byType(OptimalWrapRichText),
-            matching: find.byType(RichText),
-          ),
-        )
-        .first;
+    final richTextWidget =
+        tester
+            .widgetList<RichText>(
+              find.descendant(
+                of: find.byType(OptimalWrapRichText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .first;
     expect(richTextWidget.maxLines, 2);
     expect(richTextWidget.overflow, TextOverflow.ellipsis);
 
@@ -492,14 +505,15 @@ void main() {
         .singleWhere((box) => box.width != null);
     expect(sizedBox.width, availableWidth);
 
-    final optimalHeight = tester
-        .getSize(
-          find.descendant(
-            of: find.byType(OptimalWrapRichText),
-            matching: find.byType(RichText),
-          ),
-        )
-        .height;
+    final optimalHeight =
+        tester
+            .getSize(
+              find.descendant(
+                of: find.byType(OptimalWrapRichText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .height;
     expect(optimalHeight, lessThan(unconstrainedHeight));
 
     await expectLater(
@@ -529,14 +543,15 @@ void main() {
       ),
     );
 
-    final richTextWidget = tester
-        .widgetList<RichText>(
-          find.descendant(
-            of: find.byType(OptimalWrapRichText),
-            matching: find.byType(RichText),
-          ),
-        )
-        .first;
+    final richTextWidget =
+        tester
+            .widgetList<RichText>(
+              find.descendant(
+                of: find.byType(OptimalWrapRichText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .first;
     expect(richTextWidget.maxLines, 1);
     expect(richTextWidget.overflow, TextOverflow.ellipsis);
 
@@ -623,10 +638,7 @@ void main() {
     const richText = TextSpan(
       children: [
         TextSpan(text: 'My slightly '),
-        TextSpan(
-          text: 'longer',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        TextSpan(text: 'longer', style: TextStyle(fontWeight: FontWeight.bold)),
         TextSpan(text: ' rich text that will span 2 or 3 lines'),
       ],
     );
@@ -705,9 +717,7 @@ void main() {
               child: ColoredBox(color: Colors.red),
             ),
           ),
-          const TextSpan(
-            text: ' longer rich text that will span 2 or 3 lines',
-          ),
+          const TextSpan(text: ' longer rich text that will span 2 or 3 lines'),
         ],
       );
 
@@ -794,6 +804,233 @@ void main() {
     expect(painter.height, fullHeight);
     painter.dispose();
   });
+
+  test('minLines wraps a one-line phrase onto two balanced lines', () {
+    final painter = TextPainter(
+      text: const TextSpan(
+        text: 'Hello there friend',
+        style: TextStyle(fontFamily: 'Roboto', fontSize: 16),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: 400);
+
+    expect(painter.computeLineMetrics().length, 1);
+    final oneLineWidth = painter.width;
+    final oneLineHeight = painter.height;
+
+    final optimalWidth = findOptimalTextPainterWidth(painter, minLines: 2);
+    expect(optimalWidth, lessThan(oneLineWidth));
+
+    painter.layout(maxWidth: optimalWidth);
+    expect(painter.computeLineMetrics().length, 2);
+    expect(painter.height, greaterThan(oneLineHeight));
+    painter.dispose();
+  });
+
+  test('minLines does not break a single word', () {
+    final painter = TextPainter(
+      text: const TextSpan(
+        text: 'Hello',
+        style: TextStyle(fontFamily: 'Roboto', fontSize: 16),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: 400);
+
+    expect(painter.computeLineMetrics().length, 1);
+    final wordWidth = painter.width;
+
+    final optimalWidth = findOptimalTextPainterWidth(painter, minLines: 2);
+    expect(optimalWidth, closeTo(wordWidth, 1));
+
+    painter.layout(maxWidth: optimalWidth);
+    expect(painter.computeLineMetrics().length, 1);
+    painter.dispose();
+  });
+
+  test('minLines does not wrap further when already at that many lines', () {
+    final painter = TextPainter(
+      text: const TextSpan(
+        text: text,
+        style: TextStyle(fontFamily: 'Roboto', fontSize: 16),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: surfaceSize.width);
+
+    final naturalLines = painter.computeLineMetrics().length;
+    expect(naturalLines, greaterThan(1));
+    final naturalHeight = painter.height;
+    final withoutMinLines = findOptimalTextPainterWidth(painter);
+
+    painter.layout(maxWidth: surfaceSize.width);
+    final withMinLines = findOptimalTextPainterWidth(painter, minLines: 2);
+
+    expect(withMinLines, closeTo(withoutMinLines, 1));
+    painter.layout(maxWidth: withMinLines);
+    expect(painter.height, naturalHeight);
+    painter.dispose();
+  });
+
+  testWidgets('minLines wraps a one-line phrase onto two lines', (
+    tester,
+  ) async {
+    const wideSurface = Size(400, 300);
+    await tester.binding.setSurfaceSize(wideSurface);
+
+    const phrase = 'Hello there friend';
+
+    await tester.pumpWidget(
+      Wrapper(
+        text: phrase,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.center,
+        minLines: 2,
+      ),
+    );
+
+    final height =
+        tester
+            .getSize(
+              find.descendant(
+                of: find.byType(OptimalWrapText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .height;
+    expect(height, greaterThan(24));
+
+    final sizedBox = tester
+        .widgetList<SizedBox>(
+          find.descendant(
+            of: find.byType(OptimalWrapText),
+            matching: find.byType(SizedBox),
+          ),
+        )
+        .singleWhere((box) => box.width != null);
+    expect(sizedBox.width, lessThan(wideSurface.width - 32));
+
+    await expectLater(
+      find.byType(Wrapper),
+      matchesGoldenFile('goldens/comparison_min_lines_2.png'),
+    );
+  });
+
+  testWidgets('minLines does not break a single word in the widget', (
+    tester,
+  ) async {
+    const wideSurface = Size(400, 300);
+    await tester.binding.setSurfaceSize(wideSurface);
+
+    await tester.pumpWidget(
+      Wrapper(
+        text: 'Hello',
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.center,
+        minLines: 2,
+      ),
+    );
+
+    final height =
+        tester
+            .getSize(
+              find.descendant(
+                of: find.byType(OptimalWrapText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .height;
+    expect(height, lessThan(24));
+  });
+
+  testWidgets('rich minLines wraps a one-line phrase onto two lines', (
+    tester,
+  ) async {
+    const wideSurface = Size(400, 300);
+    await tester.binding.setSurfaceSize(wideSurface);
+
+    const richText = TextSpan(
+      children: [
+        TextSpan(text: 'Hello '),
+        TextSpan(text: 'there', style: TextStyle(fontWeight: FontWeight.bold)),
+        TextSpan(text: ' friend'),
+      ],
+    );
+
+    await tester.pumpWidget(
+      RichWrapper(
+        text: richText,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.center,
+        minLines: 2,
+      ),
+    );
+
+    final height =
+        tester
+            .getSize(
+              find.descendant(
+                of: find.byType(OptimalWrapRichText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .height;
+    expect(height, greaterThan(24));
+
+    await expectLater(
+      find.byType(RichWrapper),
+      matchesGoldenFile('goldens/comparison_rich_min_lines_2.png'),
+    );
+  });
+
+  testWidgets('rich minLines with WidgetSpan wraps onto two lines', (
+    tester,
+  ) async {
+    const wideSurface = Size(400, 300);
+    await tester.binding.setSurfaceSize(wideSurface);
+
+    final richText = TextSpan(
+      children: [
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: SizedBox(
+            width: 12,
+            height: 12,
+            child: ColoredBox(color: Colors.red),
+          ),
+        ),
+        const TextSpan(text: ' Hello there friend'),
+      ],
+    );
+
+    await tester.pumpWidget(
+      RichWrapper(
+        text: richText,
+        style: TextStyle(color: Colors.blue),
+        textAlign: TextAlign.center,
+        minLines: 2,
+      ),
+    );
+
+    final wrapChild = tester.renderObject<RenderOptimalWrapChild>(
+      find.byType(OptimalWrapChild),
+    );
+    expect(wrapChild.size.width, lessThan(wideSurface.width - 32));
+
+    final height =
+        tester
+            .getSize(
+              find.descendant(
+                of: find.byType(OptimalWrapRichText),
+                matching: find.byType(RichText),
+              ),
+            )
+            .height;
+    expect(height, greaterThan(24));
+
+    await expectLater(
+      find.byType(RichWrapper),
+      matchesGoldenFile('goldens/comparison_rich_min_lines_widget_span.png'),
+    );
+  });
 }
 
 final class Wrapper extends StatelessWidget {
@@ -801,6 +1038,7 @@ final class Wrapper extends StatelessWidget {
   final TextStyle style;
   final TextAlign textAlign;
   final TextDirection textDirection;
+  final int? minLines;
   final int? maxLines;
   final TextOverflow overflow;
 
@@ -810,6 +1048,7 @@ final class Wrapper extends StatelessWidget {
     required this.style,
     required this.textAlign,
     this.textDirection = TextDirection.ltr,
+    this.minLines,
     this.maxLines,
     this.overflow = TextOverflow.clip,
   });
@@ -842,6 +1081,7 @@ final class Wrapper extends StatelessWidget {
                     text,
                     style: style,
                     textAlign: textAlign,
+                    minLines: minLines,
                     maxLines: maxLines,
                     overflow: overflow,
                   ),
@@ -859,6 +1099,7 @@ final class RichWrapper extends StatelessWidget {
   final InlineSpan text;
   final TextStyle style;
   final TextAlign textAlign;
+  final int? minLines;
   final int? maxLines;
   final TextOverflow overflow;
 
@@ -867,6 +1108,7 @@ final class RichWrapper extends StatelessWidget {
     required this.text,
     required this.style,
     required this.textAlign,
+    this.minLines,
     this.maxLines,
     this.overflow = TextOverflow.clip,
   });
@@ -899,6 +1141,7 @@ final class RichWrapper extends StatelessWidget {
                     text,
                     style: style,
                     textAlign: textAlign,
+                    minLines: minLines,
                     maxLines: maxLines,
                     overflow: overflow,
                   ),

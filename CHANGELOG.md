@@ -1,3 +1,7 @@
+## 1.5.0
+Adds `minLines` to wrap onto at least that many lines when the text has
+enough words. A single unbreakable word is left on one line.
+
 ## 1.4.0
 Adds `shrinkWrap` on `OptimalWrapText` / `OptimalWrapRichText` to size to the
 optimally wrapped width instead of expanding via `Align`.

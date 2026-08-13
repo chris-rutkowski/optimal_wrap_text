@@ -19,6 +19,7 @@ final class OptimalWrapRichTextForWidth extends StatelessWidget {
   final bool? softWrap;
   final TextOverflow overflow;
   final TextScaler? textScaler;
+  final int? minLines;
   final int? maxLines;
   final String? semanticsLabel;
   final TextWidthBasis? textWidthBasis;
@@ -38,6 +39,7 @@ final class OptimalWrapRichTextForWidth extends StatelessWidget {
     this.softWrap,
     this.overflow = TextOverflow.clip,
     this.textScaler,
+    this.minLines,
     this.maxLines,
     this.semanticsLabel,
     this.textWidthBasis,
@@ -73,6 +75,7 @@ final class OptimalWrapRichTextForWidth extends StatelessWidget {
     if (inlineSpanHasPlaceholders(text)) {
       child = OptimalWrapChild(
         maxWidth: width,
+        minLines: minLines,
         child: richText,
       );
     } else {
@@ -93,13 +96,13 @@ final class OptimalWrapRichTextForWidth extends StatelessWidget {
             textHeightBehavior ?? DefaultTextHeightBehavior.maybeOf(context),
       )..layout(maxWidth: width);
 
-      final optimalWidth = findOptimalTextPainterWidth(painter);
+      final optimalWidth = findOptimalTextPainterWidth(
+        painter,
+        minLines: minLines,
+      );
       painter.dispose();
 
-      child = SizedBox(
-        width: optimalWidth,
-        child: richText,
-      );
+      child = SizedBox(width: optimalWidth, child: richText);
     }
 
     if (shrinkWrap) {

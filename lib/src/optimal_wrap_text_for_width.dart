@@ -17,6 +17,7 @@ final class OptimalWrapTextForWidth extends StatelessWidget {
   final bool? softWrap;
   final TextOverflow overflow;
   final TextScaler? textScaler;
+  final int? minLines;
   final int? maxLines;
   final String? semanticsLabel;
   final TextWidthBasis? textWidthBasis;
@@ -36,6 +37,7 @@ final class OptimalWrapTextForWidth extends StatelessWidget {
     this.softWrap,
     this.overflow = TextOverflow.clip,
     this.textScaler,
+    this.minLines,
     this.maxLines,
     this.semanticsLabel,
     this.textWidthBasis,
@@ -64,7 +66,10 @@ final class OptimalWrapTextForWidth extends StatelessWidget {
           textHeightBehavior ?? DefaultTextHeightBehavior.maybeOf(context),
     )..layout(maxWidth: width);
 
-    final optimalWidth = findOptimalTextPainterWidth(painter);
+    final optimalWidth = findOptimalTextPainterWidth(
+      painter,
+      minLines: minLines,
+    );
     painter.dispose();
 
     final child = SizedBox(
